@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-color-light: theme('colors.foreground.light');
+  --background-color-light: theme('colors.background.light');
+  --foreground-color-dark: theme('colors.foreground.dark');
+  --background-color-dark: theme('colors.background.dark');
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-color-light: theme('colors.foreground.dark');
+    --background-color-light: theme('colors.background.dark');
+  }
+}
+
+body {
+  color: var(--foreground-color-light);
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--background-color-light)
+    )
+    var(--background-color-light);
+}
+
+.dark body {
+  color: var(--foreground-color-dark);
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--background-color-dark)
+    )
+    var(--background-color-dark);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.progress-bar-success {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #38a169; /* Groene kleur */
+  animation: progress 5s linear;
+}
+
+.progress-bar-error {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #e53e3e; /* Rode kleur */
+  animation: progress 5s linear;
+}
+
+.progress-bar-warning {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #dd6b20; /* Oranje kleur */
+  animation: progress 5s linear;
+}
+
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
