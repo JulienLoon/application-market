@@ -29,7 +29,7 @@ services:
     build:
       context: ./api
     ports:
-      - "8080:8080"
+      - "3002:3002"
     environment:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}

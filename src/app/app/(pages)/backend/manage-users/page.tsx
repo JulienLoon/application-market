@@ -24,7 +24,7 @@ const ManageUsersPage: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get('http://localhost:3002/api/users', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -43,7 +43,7 @@ const ManageUsersPage: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      const response = await axios.post('http://localhost:8080/api/users', newUser, {
+      const response = await axios.post('http://localhost:3002/api/users', newUser, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +66,7 @@ const ManageUsersPage: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      await axios.delete(`http://localhost:8080/api/users/${userId}`, {
+      await axios.delete(`http://localhost:3002/api/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

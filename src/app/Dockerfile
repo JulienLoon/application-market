@@ -19,7 +19,7 @@ RUN npm install
 # Copy the rest of our Next.js folder into /app
 COPY . .
 
-# Ensure port 8080 is accessible to our system
+# Ensure port 3000 is accessible to our system
 EXPOSE 3000
 
 # Run dev, as we would via the command line

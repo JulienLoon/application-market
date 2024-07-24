@@ -10,13 +10,12 @@ const appsRoutes = require('./routes/apps');
 const usersRoutes = require('./routes/users');
 
 const app = express();
-const PORT = 8080;
+const PORT = 3002;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204

@@ -14,7 +14,7 @@ const MetadataContext = createContext<Metadata | undefined>(undefined);
 export const MetadataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [metadata] = useState<Metadata>({
     author: 'Julian Loontjens',
-    version: '0.10', // Pas hier je versie aan
+    version: '0.10.1', // Pas hier je versie aan
   });
 
   return (
