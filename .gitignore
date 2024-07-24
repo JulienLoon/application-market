@@ -21,6 +21,7 @@ out/
 *.pem
 *.old
 *.txt
+*.code-workspace
 
 # debug
 npm-debug.log*
