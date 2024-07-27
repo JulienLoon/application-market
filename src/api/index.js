@@ -8,15 +8,15 @@ const { createTables } = require('./config/database');  // Importeer createTable
 const authRoutes = require('./routes/auth');
 const appsRoutes = require('./routes/apps');
 const usersRoutes = require('./routes/users');
+const settingsRoutes = require('./routes/settings');
 
 const app = express();
-const PORT = 8080;
+const PORT = 3002;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
@@ -29,6 +29,7 @@ app.set('trust proxy', true);
 app.use('/api/auth', authRoutes);
 app.use('/api/apps', appsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Functie om tabellen te creëren en de server te starten
 async function startServer() {

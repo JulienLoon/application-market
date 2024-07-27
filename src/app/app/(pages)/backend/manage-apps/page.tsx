@@ -29,7 +29,7 @@ const ManageAppsPage: React.FC = () => {
   useEffect(() => {
     const fetchApps = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/apps/windows-apps');
+        const response = await axios.get('http://localhost:3002/api/apps/windows-apps');
         setApps(response.data);
       } catch (err) {
         console.error('Error fetching apps:', err);
@@ -63,7 +63,7 @@ const ManageAppsPage: React.FC = () => {
           last_modified_by: user_id,
         };
 
-        await axios.put(`http://localhost:8080/api/apps/windows-apps/${editingApp.id}`, updatedApp, {
+        await axios.put(`http://localhost:3002/api/apps/windows-apps/${editingApp.id}`, updatedApp, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -107,7 +107,7 @@ const ManageAppsPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/apps/windows-apps/${id}`, {
+      await axios.delete(`http://localhost:3002/api/apps/windows-apps/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -3,13 +3,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faRightToBracket, faInfoCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { useMetadata } from '../context/MetadataContext'; // Importeer useMetadata
 
 const BackendNavBar: React.FC = () => {
+    const router = useRouter(); // Gebruik useRouter om naar andere pagina's te navigeren
     const [darkMode, setDarkMode] = useState<boolean>(false);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [showInfo, setShowInfo] = useState<boolean>(false);
+
+    const { author, version } = useMetadata(); // Haal author en version op
 
     useEffect(() => {
         setIsMounted(true);  // Mark component as mounted
@@ -35,7 +40,8 @@ const BackendNavBar: React.FC = () => {
                         <img
                             src={darkMode ? "/images/Long-LOGO_Application-Market_Dark-Mode.png" : "/images/Long-LOGO_Application-Market_Light-Mode.png"}
                             alt="Backend Market Logo"
-                            className="h-8"
+                            className="h-8 cursor-pointer"
+                            onClick={() => router.push('/backend')}
                         />
                     )}
                 </div>
@@ -75,6 +81,12 @@ const BackendNavBar: React.FC = () => {
                             Welcome to the Backend Application Market! Here you can manage the latest Windows Apps and view statistics about registered users.
                             Use the navigation buttons to browse through the dashboard, create or manage apps, and more.
                         </p>
+                        <div className="mt-4">
+                            <p className="text-sm font-semibold">Version: {version}</p>
+                            <p className="text-sm font-semibold">
+                                <span className="mr-1">©</span>{author}
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}

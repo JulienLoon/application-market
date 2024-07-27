@@ -51,7 +51,7 @@ Zorg ervoor dat je de volgende vereisten hebt geïnstalleerd:
     docker-compose up --build
     ```
 
-De applicatie zou nu beschikbaar moeten zijn op `http://localhost:3000` voor de frontend en `http://localhost:8080` voor de API.
+De applicatie zou nu beschikbaar moeten zijn op `http://localhost:3000` voor de frontend en `http://localhost:3002` voor de API.
 
 ## Omgevingsvariabelen
 
@@ -68,7 +68,7 @@ De volgende omgevingsvariabelen zijn vereist en moeten worden ingesteld in een `
 Na het starten van de services kun je de volgende URLs bezoeken:
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
-- API: [http://localhost:8080](http://localhost:8080)
+- API: [http://localhost:3002](http://localhost:3002)
 
 ### API Endpoints
 

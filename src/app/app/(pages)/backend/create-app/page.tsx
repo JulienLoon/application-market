@@ -38,7 +38,7 @@ const CreateAppPage: React.FC = () => {
         last_modified_by: user_id,
       };
 
-      await axios.post('http://localhost:8080/api/apps/windows-apps', newApp, {
+      await axios.post('http://localhost:3002/api/apps/windows-apps', newApp, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

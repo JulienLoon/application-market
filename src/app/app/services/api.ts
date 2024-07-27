@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:3002';
 
 interface AppData {
     name: string;
@@ -23,6 +23,17 @@ const getAuthHeaders = () => {
             'Authorization': `Bearer ${token}`
         }
     };
+};
+
+// Registration status API function
+export const getRegistrationStatus = async (): Promise<boolean> => {
+    try {
+        const response = await axios.get<{ registration_enabled: boolean }>(`${API_BASE_URL}/api/settings/registration`);
+        return response.data.registration_enabled;
+    } catch (error) {
+        console.error('Error fetching registration status:', error);
+        throw new Error('Failed to fetch registration status');
+    }
 };
 
 // User Info API function
@@ -48,7 +59,7 @@ export const getAppsBackend = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching apps:', error);
-        throw error;
+        throw new Error('Failed to fetch apps');
     }
 };
 
@@ -58,7 +69,7 @@ export const getAppsFrontend = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching apps:', error);
-        throw error;
+        throw new Error('Failed to fetch apps');
     }
 };
 
@@ -72,7 +83,7 @@ export const createApp = async (appData: AppData) => {
         } else {
             console.error('Unknown error:', error);
         }
-        throw error;
+        throw new Error('Failed to create app');
     }
 };
 
@@ -82,7 +93,7 @@ export const updateApp = async (appId: number, appData: AppData) => {
         return response.data;
     } catch (error) {
         console.error('Error updating app:', error);
-        throw error;
+        throw new Error('Failed to update app');
     }
 };
 
@@ -91,7 +102,7 @@ export const deleteApp = async (appId: number) => {
         await axios.delete(`${API_BASE_URL}/api/apps/windows-apps/${appId}`, getAuthHeaders());
     } catch (error) {
         console.error('Error deleting app:', error);
-        throw error;
+        throw new Error('Failed to delete app');
     }
 };
 
@@ -102,7 +113,7 @@ export const getUsers = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
-        throw error;
+        throw new Error('Failed to fetch users');
     }
 };
 
@@ -116,7 +127,7 @@ export const createUser = async (userData: { username: string; email: string }) 
         } else {
             console.error('Unknown error:', error);
         }
-        throw error;
+        throw new Error('Failed to create user');
     }
 };
 
@@ -126,7 +137,7 @@ export const updateUser = async (userId: number, userData: { username: string; e
         return response.data;
     } catch (error) {
         console.error('Error updating user:', error);
-        throw error;
+        throw new Error('Failed to update user');
     }
 };
 
@@ -135,7 +146,7 @@ export const deleteUser = async (userId: number) => {
         await axios.delete(`${API_BASE_URL}/api/users/${userId}`, getAuthHeaders());
     } catch (error) {
         console.error('Error deleting user:', error);
-        throw error;
+        throw new Error('Failed to delete user');
     }
 };
 
@@ -146,7 +157,7 @@ export const getRegisteredUsersCount = async () => {
         return response.data.count;
     } catch (error) {
         console.error('Error fetching registered users count:', error);
-        throw error;
+        throw new Error('Failed to fetch registered users count');
     }
 };
 
@@ -156,6 +167,6 @@ export const getAppsCount = async () => {
         return response.data.count;
     } catch (error) {
         console.error('Error fetching apps count:', error);
-        throw error;
+        throw new Error('Failed to fetch apps count');
     }
 };
