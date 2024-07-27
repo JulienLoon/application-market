@@ -19,7 +19,7 @@ COPY wait-for-it.sh /usr/src/app/wait-for-it.sh
 RUN chmod +x /usr/src/app/wait-for-it.sh
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 3002
 
 # Run the app with wait-for-it
 CMD ["./wait-for-it.sh", "db:3306", "--", "node", "index.js"]

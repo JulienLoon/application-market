@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Notification from '../components/Notification';
+import { getRegistrationStatus } from '../services/api'; // Import the function
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +16,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [registrationEnabled, setRegistrationEnabled] = useState(false); // State for registration status
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +26,18 @@ const LoginPage: React.FC = () => {
       if (token) {
         router.push('/backend');
       }
+
+      // Fetch registration status
+      const fetchRegistrationStatus = async () => {
+        try {
+          const status = await getRegistrationStatus();
+          setRegistrationEnabled(status);
+        } catch (error) {
+          console.error('Failed to fetch registration status:', error);
+        }
+      };
+
+      fetchRegistrationStatus();
     }
   }, [router]);
 
@@ -37,7 +51,7 @@ const LoginPage: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post('http://localhost:3002/api/auth/login', {
         username,
         password,
       });
@@ -68,6 +82,10 @@ const LoginPage: React.FC = () => {
 
   const handleBackToFrontend = () => {
     router.push('/');
+  };
+
+  const handleRegister = () => {
+    router.push('/register'); // Adjust the path to your registration page
   };
 
   if (!isMounted) {
@@ -133,6 +151,16 @@ const LoginPage: React.FC = () => {
             Login
           </button>
         </form>
+        {registrationEnabled && (
+          <div className="mt-4 text-center">
+            <p className="text-gray-700 dark:text-gray-300">
+              Don't have an account yet?{' '}
+              <button onClick={handleRegister} className="text-blue-500 hover:underline focus:outline-none">
+                Register here.
+              </button>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

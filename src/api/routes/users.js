@@ -19,37 +19,18 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// POST create a new user
-router.post('/', authenticateToken, async (req, res) => {
-    const { username, email } = req.body;
-    if (!username || !email) {
-        return res.status(400).send('Missing required fields: username and email');
-    }
-
-    try {
-        const [result] = await pool.query(
-            'INSERT INTO users (username, email) VALUES (?, ?)',
-            [username, email]
-        );
-        res.status(201).send({ id: result.insertId });
-    } catch (err) {
-        console.error('Error inserting user into database:', err);
-        res.status(500).send('Error inserting user into database');
-    }
-});
-
 // PUT update a user
 router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const { username, email } = req.body;
-    if (!id || !username || !email) {
-        return res.status(400).send('Missing required fields: id, username, and email');
+    const { username, password, first_name, last_name, email_address, isEnabled } = req.body;
+    if (!id || !username || !email_address) {
+        return res.status(400).send('Missing required fields: id, username, and email_address');
     }
 
     try {
         await pool.query(
-            'UPDATE users SET username = ?, email = ? WHERE id = ?',
-            [username, email, id]
+            'UPDATE users SET username = ?, password = ?, first_name = ?, last_name = ?, email_address = ?, isEnabled = ? WHERE id = ?',
+            [username, password, first_name, last_name, email_address, isEnabled, id]
         );
         res.status(200).send({ message: 'User updated successfully' });
     } catch (err) {
@@ -57,6 +38,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
         res.status(500).send('Error updating user in database');
     }
 });
+
 
 // DELETE delete a user
 router.delete('/:id', authenticateToken, async (req, res) => {
