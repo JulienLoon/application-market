@@ -6,15 +6,16 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faRightToBracket, faInfoCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { useMetadata } from '../context/MetadataContext'; // Importeer useMetadata
+import { useMetadata } from '../context/MetadataContext'; // Import useMetadata
 
 const BackendNavBar: React.FC = () => {
-    const router = useRouter(); // Gebruik useRouter om naar andere pagina's te navigeren
+    const router = useRouter(); // Use useRouter for navigation
     const [darkMode, setDarkMode] = useState<boolean>(false);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [showInfo, setShowInfo] = useState<boolean>(false);
+    const [tooltip, setTooltip] = useState<string | null>(null);
 
-    const { author, version } = useMetadata(); // Haal author en version op
+    const { author, version } = useMetadata(); // Get author and version
 
     useEffect(() => {
         setIsMounted(true);  // Mark component as mounted
@@ -32,6 +33,11 @@ const BackendNavBar: React.FC = () => {
         }
     }, [darkMode, isMounted]);
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        router.push('/');
+    };
+
     return (
         <nav className="fixed w-full top-0 bg-white dark:bg-gray-800 shadow z-50">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -45,25 +51,52 @@ const BackendNavBar: React.FC = () => {
                         />
                     )}
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => setDarkMode(!darkMode)}
-                        className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2"
-                    >
-                        <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
-                    </button>
-                    <button
-                        onClick={() => setShowInfo(!showInfo)}
-                        className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2"
-                    >
-                        <FontAwesomeIcon icon={faInfoCircle} />
-                    </button>
-                    <a
-                        href="/backend/login"
-                        className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2"
-                    >
-                        <FontAwesomeIcon icon={faRightToBracket} />
-                    </a>
+                <div className="relative flex items-center space-x-4">
+                    <div className="relative group">
+                        <button
+                            onClick={() => setDarkMode(!darkMode)}
+                            onMouseEnter={() => setTooltip('Toggle Dark Mode')}
+                            onMouseLeave={() => setTooltip(null)}
+                            className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-700"
+                        >
+                            <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
+                        </button>
+                        {tooltip === 'Toggle Dark Mode' && (
+                            <div className="absolute bottom-[-2rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded shadow-lg whitespace-nowrap">
+                                Toggle Dark Mode
+                            </div>
+                        )}
+                    </div>
+                    <div className="relative group">
+                        <button
+                            onClick={() => setShowInfo(!showInfo)}
+                            onMouseEnter={() => setTooltip('Information')}
+                            onMouseLeave={() => setTooltip(null)}
+                            className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-700"
+                        >
+                            <FontAwesomeIcon icon={faInfoCircle} />
+                        </button>
+                        {tooltip === 'Information' && (
+                            <div className="absolute bottom-[-2rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded shadow-lg whitespace-nowrap">
+                                Information
+                            </div>
+                        )}
+                    </div>
+                    <div className="relative group">
+                        <button
+                            onClick={handleLogout}
+                            onMouseEnter={() => setTooltip('Logout')}
+                            onMouseLeave={() => setTooltip(null)}
+                            className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-700"
+                        >
+                            <FontAwesomeIcon icon={faRightToBracket} />
+                        </button>
+                        {tooltip === 'Logout' && (
+                            <div className="absolute bottom-[-2rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded shadow-lg whitespace-nowrap">
+                                Logout
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             {showInfo && (

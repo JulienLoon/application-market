@@ -32,15 +32,15 @@ async function createTables() {
 
     const createWindowsAppsTable = `
         CREATE TABLE IF NOT EXISTS windows_apps (
-            id bigint unsigned NOT NULL AUTO_INCREMENT,
-            name varchar(255) NOT NULL,
-            description text,
-            download_url varchar(255) DEFAULT NULL,
-            image_url varchar(255) DEFAULT NULL,
-            created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-            created_by int DEFAULT NULL,
-            updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-            last_modified_by int DEFAULT NULL,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            download_url VARCHAR(255) DEFAULT NULL,
+            image_url VARCHAR(255) DEFAULT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            created_by INT DEFAULT NULL,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            last_modified_by INT DEFAULT NULL,
             PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
     `;
@@ -55,11 +55,35 @@ async function createTables() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
     `;
 
+    const createBlacklistTokensTable = `
+        CREATE TABLE IF NOT EXISTS blacklist_tokens (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            token VARCHAR(500) NOT NULL,
+            expires_at TIMESTAMP NULL DEFAULT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    `;
+
+
+    const createUserTokensTable = `
+        CREATE TABLE IF NOT EXISTS user_tokens (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id BIGINT UNSIGNED NOT NULL,
+            token VARCHAR(500) NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    `;
+
     const connection = await pool.getConnection();
     try {
         await connection.query(createUsersTable);
         await connection.query(createWindowsAppsTable);
         await connection.query(createSettingsTable);
+        await connection.query(createBlacklistTokensTable);
+        await connection.query(createUserTokensTable);
         console.log('Tables created or already exist');
 
         // Voeg een standaard admin-gebruiker toe als deze nog niet bestaat
@@ -95,3 +119,4 @@ async function createTables() {
 }
 
 module.exports = { pool, createTables };
+

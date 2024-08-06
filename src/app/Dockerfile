@@ -13,6 +13,9 @@ WORKDIR /app
 # to the /app working directory
 COPY package*.json ./
 
+# Set the timezone
+RUN ln -snf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime && echo Europe/Amsterdam > /etc/timezone
+
 # Install dependencies in /app
 RUN npm install
 

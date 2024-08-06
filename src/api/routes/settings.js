@@ -8,7 +8,7 @@ const { pool } = require('../config/database');
 router.get('/registration', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT setting_value FROM settings WHERE setting_key = "registration_enabled"');
-        const registrationEnabled = rows.length > 0 && rows[0].setting_value === '1'; // Aanpassen indien waarde integer is
+        const registrationEnabled = rows.length > 0 && rows[0].setting_value === '1';
         res.json({ registration_enabled: registrationEnabled });
     } catch (error) {
         console.error('Error fetching registration status:', error);

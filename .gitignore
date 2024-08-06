@@ -17,6 +17,7 @@ out/
 /build
 
 # misc
+data/
 .DS_Store
 *.pem
 *.old

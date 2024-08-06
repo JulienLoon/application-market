@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [V0.10.3]
+
+### Added
+- Added: New `LogOut` component to handle user logout more efficiently. This component verifies the token and logs the user out if the token is invalid or blacklisted.
+- Added: New database table `user_tokens` to store active user tokens.
+- Added: New database table `blacklist_tokens` to store blacklisted tokens for enhanced security.
+- Added: Validation to check if all required fields (username, password, first name, last name, email address) are filled in the `ManageUsersPage` component.
+- Added: Error and warning messages for empty or invalid fields when adding or updating a user on the `ManageUsersPage` component.
+- Added: Tooltips for the `BackendNavBar` and `FrontendNavBar` components, displaying helpful text below buttons on hover.
+- Added: Hover effects to buttons in both `BackendNavBar` and `FrontendNavBar` components for better user experience.
+- Added: Dark mode support to the Login and Register pages. Both pages now automatically adjust to the system's dark mode settings for improved user experience.
+- Added: Scheduled task to delete expired tokens from the `blacklist_tokens` table every hour. The task logs the current time in the format `HH:MM` to ensure clarity on when the cron job was executed.
+- Added: Time zone configuration in Dockerfile to ensure consistent time zone across different environments. The Dockerfile now sets the time zone to `Europe/Amsterdam`.
+- Added: FontAwesome icons to the `Sidebar` component for a better visual representation of each menu item.
+
+### Changed
+- Improved: Token validation process to enhance security and user experience during logout.
+- Improved: The `addUser` and `updateUser` functions in the `ManageUsersPage` component now include field validation, providing feedback for incomplete or incorrect user information.
+- Improved: Enhanced error handling to show warnings for missing or invalid user data and email addresses in the `ManageUsersPage` component.
+- Improved: Dark mode toggle functionality in `BackendNavBar` to ensure the button's appearance remains consistent.
+- Improved: The cron job for deleting expired tokens now includes time-based logging to provide better insight into execution times. This change improves debugging and monitoring of token expiration.
+- Improved: The cron job script now includes additional logging to confirm that cron jobs are being loaded and executed as expected.
+- Changed: The RequireAuth component now checks if the token is blacklisted and removes it from local storage if invalid.
+- Changed: Tooltip positioning and styling in `BackendNavBar` to ensure they appear below buttons without disrupting layout.
+- Changed: Updated `FrontendNavBar` to include tooltips with descriptive text for buttons on hover.
+- Changed: Increased the size of the buttons in the `Sidebar` component for better usability.
+- Changed: Adjusted the styling of the `Sidebar` component to prevent text from shifting when icons are added.
+- Fixed: Issue with updating isEnabled in user records to ensure proper handling and storage of boolean values.
+- Fixed: Issue where updating isEnabled also changed the password of that user in the database.
+
+### Removed
+- No removals in this release.
+
 ## [V0.10.2]
 
 ### Added

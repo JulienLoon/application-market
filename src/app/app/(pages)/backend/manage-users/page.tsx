@@ -19,6 +19,7 @@ const ManageUsersPage: React.FC = () => {
   const [editUser, setEditUser] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<number | null>(null);
 
@@ -33,7 +34,7 @@ const ManageUsersPage: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      const response = await axios.get('http://localhost:3002/api/users', {
+      const response = await axios.get('http://localhost:3002/api/admin/users', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -45,19 +46,57 @@ const ManageUsersPage: React.FC = () => {
     }
   };
 
+  const validateUserFields = (user: any, isEdit = false) => {
+    const { username, password, first_name, last_name, email_address } = user;
+    if (!username || !first_name || !last_name || !email_address) {
+      return 'All fields are required.';
+    }
+    if (!isEdit && !password) {
+      return 'Password is required.';
+    }
+    return null;
+  };  
+
+  const validateEmail = (email: string) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      if (!email.includes('@')) {
+        return 'Email address must contain @';
+      } else if (!email.includes('.')) {
+        return 'Email address must contain a domain';
+      } else {
+        return 'Invalid email address';
+      }
+    }
+    return null;
+  }; 
+
   const addUser = async () => {
+    const fieldError = validateUserFields(newUser);
+    const emailError = validateEmail(newUser.email_address);
+
+    if (fieldError) {
+      setWarningMessage(fieldError);
+      return;
+    }
+  
+    if (emailError) {
+      setWarningMessage(`Faulty email address entered: ${emailError}`);
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Token not found');
       }
-
-      const response = await axios.post('http://localhost:3002/api/auth/register', newUser, {
+  
+      await axios.post('http://localhost:3002/api/admin/users', newUser, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      setUsers([...users, response.data]);
+      fetchUsers();
       setNewUser({
         username: '',
         password: '',
@@ -73,26 +112,47 @@ const ManageUsersPage: React.FC = () => {
       setSuccessMessage(null);
       console.error('Error creating user:', err);
     }
-  };
-
+  };  
+  
   const updateUser = async () => {
+    const emailError = validateEmail(editUser.email_address);
+    const fieldError = validateUserFields(editUser, true); // Pass true for edit mode
+  
+    if (emailError) {
+      setWarningMessage(`Faulty email address entered: ${emailError}`);
+      return;
+    }
+  
+    if (fieldError) {
+      setWarningMessage(fieldError);
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Token not found');
       }
-
+  
       if (!editUser || !editUser.id) {
         throw new Error('No user selected for editing');
       }
-
-      await axios.put(`http://localhost:3002/api/users/${editUser.id}`, editUser, {
+  
+      // Prepare the payload for updating the user
+      const userToUpdate = { ...editUser, isEnabled: editUser.isEnabled ? 1 : 0 };
+  
+      // Remove the password if it's empty
+      if (!userToUpdate.password) {
+        delete userToUpdate.password;
+      }
+  
+      await axios.put(`http://localhost:3002/api/admin/users/${editUser.id}`, userToUpdate, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      setUsers(users.map(user => (user.id === editUser.id ? editUser : user)));
+  
+      fetchUsers();
       setEditUser(null);
       setSuccessMessage('User successfully updated!');
       setError(null);
@@ -101,8 +161,8 @@ const ManageUsersPage: React.FC = () => {
       setSuccessMessage(null);
       console.error('Error updating user:', err);
     }
-  };
-
+  };  
+  
   const deleteUser = async (userId: number) => {
     try {
       const token = localStorage.getItem('token');
@@ -110,12 +170,12 @@ const ManageUsersPage: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      await axios.delete(`http://localhost:3002/api/users/${userId}`, {
+      await axios.delete(`http://localhost:3002/api/admin/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      setUsers(users.filter(user => user.id !== userId));
+      fetchUsers();
       setSuccessMessage('User successfully deleted!');
       setError(null);
       setConfirmDeleteUserId(null);
@@ -146,8 +206,8 @@ const ManageUsersPage: React.FC = () => {
   };
 
   const handleEditClick = (user: any) => {
-    setEditUser(user);
-  };
+    setEditUser({ ...user, password: '' });
+  };  
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -175,7 +235,15 @@ const ManageUsersPage: React.FC = () => {
           onClose={() => setSuccessMessage(null)}
         />
       )}
+      {warningMessage && (
+        <Notification
+          message={warningMessage}
+          type="warning"
+          onClose={() => setWarningMessage(null)}
+        />
+      )}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-4xl">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Add User</h2>
         <form className="mb-4">
           <div className="mb-4">
             <label htmlFor="username" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -263,6 +331,7 @@ const ManageUsersPage: React.FC = () => {
             Add User
           </button>
         </form>
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Manage Users</h2>
         <table className="min-w-full bg-white dark:bg-gray-800">
           <thead>
             <tr>
