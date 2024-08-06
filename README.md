@@ -70,6 +70,11 @@ Na het starten van de services kun je de volgende URLs bezoeken:
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - API: [http://localhost:3002](http://localhost:3002)
 
+U kunt inloggen met de standaard gebruiker:
+
+- Username: admin
+- Wachtwoord: WelcomeToApplicationMarket
+
 ### API Endpoints
 
 Hier zijn enkele van de belangrijkste API endpoints:

@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Notification from '../components/Notification';
-import { getRegistrationStatus } from '../services/api'; // Import the function
+import { getRegistrationStatus } from '../services/api';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -16,18 +16,21 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [registrationEnabled, setRegistrationEnabled] = useState(false); // State for registration status
+  const [darkMode, setDarkMode] = useState(false);
+  const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsMounted(true); // Mark component as mounted
+      setIsMounted(true);
       const token = localStorage.getItem('token');
       if (token) {
         router.push('/backend');
       }
 
-      // Fetch registration status
+      const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(userPrefersDark);
+
       const fetchRegistrationStatus = async () => {
         try {
           const status = await getRegistrationStatus();
@@ -41,51 +44,58 @@ const LoginPage: React.FC = () => {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !password) {
-      setError('Please enter both username and password.');
-      setSuccessMessage(null);
-      return;
+        setError('Please enter both username and password.');
+        setSuccessMessage(null);
+        return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3002/api/auth/login', {
-        username,
-        password,
-      });
+        const response = await axios.post('http://localhost:3002/api/auth/login', {
+            username,
+            password,
+        });
 
-      if (response.status === 200) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user_id', response.data.user_id); // Store the user ID
-        setSuccessMessage('Login successful! Redirecting...');
-        setError(null);
-        setTimeout(() => {
-          router.push('/backend');
-        }, 2000); // Wait for 2 seconds before redirecting
-      }
+        if (response.status === 200) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user_id', response.data.user_id.toString()); // Convert to string
+            setSuccessMessage('Login successful! Redirecting...');
+            setError(null);
+            setTimeout(() => {
+                router.push('/backend');
+            }, 2000);
+        }
     } catch (err: any) {
-      console.error('Login error:', err); // Log the error for debugging
-      const errorMessage = err.response?.data;
-      if (typeof errorMessage === 'string') {
-        setError(errorMessage);
-      } else if (typeof errorMessage === 'object') {
-        // Handle object response accordingly, e.g., extract specific error message
-        setError('Login failed: wrong username or password');
-      } else {
-        setError('Login failed: API not available.');
-      }
-      setSuccessMessage(null);
+        console.error('Login error:', err);
+        const errorMessage = err.response?.data;
+        if (typeof errorMessage === 'string') {
+            setError(errorMessage);
+        } else if (typeof errorMessage === 'object') {
+            setError('Login failed: wrong username or password');
+        } else {
+            setError('Login failed: API not available.');
+        }
+        setSuccessMessage(null);
     }
-  };
+};
 
   const handleBackToFrontend = () => {
     router.push('/');
   };
 
   const handleRegister = () => {
-    router.push('/register'); // Adjust the path to your registration page
+    router.push('/register');
   };
 
   if (!isMounted) {

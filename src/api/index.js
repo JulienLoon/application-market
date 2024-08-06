@@ -1,6 +1,10 @@
 // /index.js
 
 require('dotenv').config();
+console.log('Loading cron jobs...');
+require('./config/cronJobs');  
+console.log('Cron jobs loaded.');
+ 
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -9,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const appsRoutes = require('./routes/apps');
 const usersRoutes = require('./routes/users');
 const settingsRoutes = require('./routes/settings');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = 3002;
@@ -30,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/apps', appsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Functie om tabellen te creëren en de server te starten
 async function startServer() {

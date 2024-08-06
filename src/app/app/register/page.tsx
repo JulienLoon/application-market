@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import Notification from '../components/Notification';  // Zorg ervoor dat dit de juiste import is
+import Notification from '../components/Notification';
 import { getRegistrationStatus } from '../services/api';
 
 const RegisterPage: React.FC = () => {
@@ -21,14 +21,25 @@ const RegisterPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMounted(true);
+      const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(userPrefersDark);
     }
   }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     const fetchRegistrationStatus = async () => {
@@ -37,7 +48,7 @@ const RegisterPage: React.FC = () => {
         setRegistrationEnabled(enabled);
       } catch (error) {
         console.error('Error fetching registration status:', error);
-        setRegistrationEnabled(false);  // Default to false if there's an error
+        setRegistrationEnabled(false);
       }
     };
 
@@ -73,7 +84,7 @@ const RegisterPage: React.FC = () => {
         email_address,
         first_name,
         last_name,
-        isEnabled: true,  // Default value for isEnabled
+        isEnabled: true,
       });
 
       if (response.status === 201) {
@@ -82,7 +93,7 @@ const RegisterPage: React.FC = () => {
         setWarningMessage(null);
         setTimeout(() => {
           router.push('/login');
-        }, 2000); // Wait for 2 seconds before redirecting
+        }, 2000);
       }
     } catch (err: any) {
       const errorMessage = err.response?.data;

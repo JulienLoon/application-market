@@ -6,6 +6,7 @@ import React from 'react';
 import Head from 'next/head';
 import BackendNavBar from '../../components/BackendNavBar';
 import Sidebar from '../../components/SideBar';
+import RequireAuth from '../../components/RequireAuth'; // Import the RequireAuth component
 
 interface LayoutProps {
   title?: string;
@@ -23,7 +24,9 @@ const BackendLayout: React.FC<LayoutProps> = ({ title, children }) => {
         <div className="flex flex-1">
           <Sidebar />
           <div className="flex-1 p-8 mt-16 ml-64">
-            {children}
+            <RequireAuth>
+              {children}
+            </RequireAuth>
           </div>
         </div>
       </div>
