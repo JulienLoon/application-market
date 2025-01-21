@@ -30,6 +30,18 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     try {
+        // Check if the email address already exists for another user
+        const [[emailCheck]] = await pool.query('SELECT id FROM users WHERE email_address = ? AND id != ?', [email_address, id]);
+        if (emailCheck) {
+            return res.status(400).send('Email address already in use');
+        }
+
+        // Check if the username already exists for another user
+        const [[usernameCheck]] = await pool.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, id]);
+        if (usernameCheck) {
+            return res.status(400).send('Username already in use');
+        }
+
         const updates = [username, first_name, last_name, email_address, isEnabled];
         let query = 'UPDATE users SET username = ?, first_name = ?, last_name = ?, email_address = ?, isEnabled = ?';
 
@@ -56,6 +68,18 @@ router.get('/count', authenticateToken, async (req, res) => {
         const [results] = await pool.query('SELECT COUNT(*) AS count FROM users');
         const count = results[0].count;
         res.json({ count });
+    } catch (err) {
+        console.error('Error querying database:', err);
+        res.status(500).send('Error querying database');
+    }
+});
+
+// GET route to fetch count of enabled users
+router.get('/count/enabled', authenticateToken, async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT COUNT(*) AS count FROM users WHERE isEnabled = true');
+        const enabledCount = results[0].count;
+        res.json({ count: enabledCount });
     } catch (err) {
         console.error('Error querying database:', err);
         res.status(500).send('Error querying database');

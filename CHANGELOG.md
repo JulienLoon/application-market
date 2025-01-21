@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+![Application Market Logo](./assets/images/Long-LOGO_Application-Market_Dark-Mode.png)
+
+## [V0.10.4]
+
+### Added
+- Added: `FrontendNavBar` image is now clickable, leading to the homepage.
+- Added: Toggle buttons with grid and list view icons in the frontend `AppList`.
+- Added: `FrontendFooter` component to display metadata (version and author) on the frontend.
+- Added: `Enabled Users` counter on backend dashboard.
+- Added: Password visibility toggle (eye icons) to the `Login`, `Registration` and `Manage Users` page.
+- Added: Placeholder `"Leave blank to keep current password"` for password input when editing users in the backend.
+- Added: Filtering functionality in the `AppList` component to display apps that match the search term.
+- Added: Grid and list view buttons to the `ManageAppsPage` for toggling between different display modes.
+- Added: Functionality to disable users who are currently logged in through the backend, preventing their access until re-enabled.
+- Added: Double confirmation prompts when attempting to delete a user account, especially when deleting the currently logged-in user's own account. Includes a secondary prompt warning that deleting their own account will log them out immediately.
+- Added: Confirmation prompt when attempting to delete an app in the `ManageAppsPage`, requiring users to confirm the deletion before proceeding.
+- Added: Handling for cases with no apps in the dashboard; displays "No Apps" message when there are no latest apps to show.
+- Added: Search functionality in the frontend (`FrontendNavBar`) and backend navigation bar (`BackendNavBar`) with the ability to search apps.
+- Added: Search bar to the `ManageAppsPage` to filter apps based on user input.
+
+### Changed
+- Changed: `ManageAppsPage` now includes grid and list view modes, allowing users to switch between a grid or list format for displaying apps.
+- Improved: Dark mode detection and application in the `FrontendNavBar` to enhance visual consistency across components.
+- Changed: Refactored `AppList` component to include search functionality and optimized state management.
+- Changed: Backend logic now ensures the password is only updated if a new password is explicitly provided during user edits.
+- Changed: Updated user deletion flow to include a confirmation dialog for deleting the currently logged-in user's account, requiring additional confirmation before proceeding with the deletion.
+- Changed: Updated the backend dashboard to handle and display the "No Apps" message in the latest apps section when no apps are available.
+- Improved: Conditional rendering for latest apps in the `Dashboard` component to show an appropriate message when no apps are present.
+- Improved: Frontend `RegisterPage` and backend `ManageUsersPage` now handles specific error messages related to username and email address conflicts during user creation and updates.
+- Improved: The `SettingsPage` now secures the update process by implementing `authenticateToken` middleware to ensure that only authenticated users can update the registration settings.
+
+### Removed
+- No removals in this release.
+
 ## [V0.10.3]
 
 ### Added
@@ -42,30 +76,4 @@ All notable changes to this project will be documented in this file.
 - Added: Register page can be toggled off. It can also be enabled in the Settings menu.
 - Added: Settings page to modify app settings.
 - Added: A new button on the login page: "Don't have an account yet? Register here." This button appears if the 'Register' page is enabled.
-- Added: Confirmation dialog when deleting a user in the `ManageUsersPage` component.
-- Added: Ability to edit user details on the `ManageUsersPage`. Fields include username, password, first name, last name, email address, and isEnabled.
-- Added: New functionality to enable and disable users via the `ManageUsersPage`.
-- Added: `Sidebar` component now displays a personalized greeting with both the user's first name and last name.
-
-### Changed
-- Improved: The navigation icon in the `BackendNavBar` is now clickable and leads to the backend root (`/backend`).
-- Changed: The information button in the `BackendNavBar` now shows version information and author with a copyright symbol, similar to the sidebar.
-- Changed: The structure and layout of the information display in the `BackendNavBar` have been updated to show version and author information.
-- Improved: `ManageUsersPage` component now shows a confirmation prompt before deleting a user.
-- Changed: `ManageUsersPage` component now provides an extensive form for editing user information, including fields such as username, password, first name, last name, email address, and isEnabled.
-- Improved: Added a visual indication of active/inactive status on the `ManageUsersPage`.
-- Improved: `Sidebar` component has been updated to display both the user's first name and last name in the greeting and profile section.
-
-### Removed
-- No removals in this release.
-
-## [V0.10.1]
-
-### Added
-- First release of the application.
-
-### Changed
-- No changes in this initial release.
-
-### Removed
-- No removals in this initial release.
+- Added: Confirmation dialog when deleting a user

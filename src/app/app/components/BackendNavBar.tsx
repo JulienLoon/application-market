@@ -5,20 +5,21 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon, faRightToBracket, faInfoCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { useMetadata } from '../context/MetadataContext'; // Import useMetadata
+import { faSun, faMoon, faRightToBracket, faInfoCircle, faTimesCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { useMetadata } from '../context/MetadataContext';
 
 const BackendNavBar: React.FC = () => {
-    const router = useRouter(); // Use useRouter for navigation
+    const router = useRouter();
     const [darkMode, setDarkMode] = useState<boolean>(false);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [showInfo, setShowInfo] = useState<boolean>(false);
     const [tooltip, setTooltip] = useState<string | null>(null);
-
-    const { author, version } = useMetadata(); // Get author and version
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
+    const { author, version } = useMetadata();
 
     useEffect(() => {
-        setIsMounted(true);  // Mark component as mounted
+        setIsMounted(true);
         const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         setDarkMode(userPrefersDark);
     }, []);
@@ -32,6 +33,27 @@ const BackendNavBar: React.FC = () => {
             }
         }
     }, [darkMode, isMounted]);
+
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setSearchTerm(value);
+    };
+
+    const handleSearchSubmit = () => {
+        if (searchTerm.length > 2) {
+            router.push(`/backend/search?query=${encodeURIComponent(searchTerm)}`);
+        }
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearchSubmit();
+        }
+    };
+
+    const toggleSearch = () => {
+        setIsSearchVisible(!isSearchVisible);
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -52,6 +74,34 @@ const BackendNavBar: React.FC = () => {
                     )}
                 </div>
                 <div className="relative flex items-center space-x-4">
+                    {/* Search Input and Button */}
+                    <div className="flex items-center bg-gray-200 dark:bg-gray-600 rounded-full relative">
+                        {isSearchVisible && (
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyDown={handleKeyDown} // Voeg onKeyDown toe
+                                placeholder="Search apps..."
+                                className="bg-transparent text-gray-800 dark:text-white rounded-full px-4 py-2 transition-all duration-300"
+                            />
+                        )}
+                        <button
+                            onClick={toggleSearch}
+                            className="text-gray-800 dark:text-white px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-full"
+                        >
+                            <FontAwesomeIcon icon={faSearch} />
+                        </button>
+                        {isSearchVisible && (
+                            <button
+                                onClick={handleSearchSubmit}
+                                className="text-gray-800 dark:text-white px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-full"
+                            >
+                                Search
+                            </button>
+                        )}
+                    </div>
+
                     <div className="relative group">
                         <button
                             onClick={() => setDarkMode(!darkMode)}
@@ -101,7 +151,7 @@ const BackendNavBar: React.FC = () => {
             </div>
             {showInfo && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="absolute inset-0 bg-black opacity-50"></div> {/* Faded background */}
+                    <div className="absolute inset-0 bg-black opacity-50"></div>
                     <div className="bg-white dark:bg-gray-700 text-gray-800 dark:text-white p-8 rounded-lg shadow-lg relative max-w-2xl mx-auto border-2 border-gray-300 dark:border-gray-600">
                         <button
                             onClick={() => setShowInfo(false)}

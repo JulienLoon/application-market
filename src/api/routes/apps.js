@@ -8,10 +8,10 @@ const router = express.Router();
 // Roep createTables aan om ervoor te zorgen dat tabellen bestaan
 createTables();
 
-// GET route for apps (publicly accessible)
 router.get('/windows-apps', async (req, res) => {
     const clientIp = req.headers['x-forwarded-for'] || req.ip || req.socket.remoteAddress;
     const timestamp = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+    const { search } = req.query;  // Zoekterm ophalen uit de query-parameters
 
     const logMessage = `
     ----------------------------------------
@@ -28,12 +28,24 @@ router.get('/windows-apps', async (req, res) => {
     console.log(logMessage);
 
     try {
-        // Adjust the query to join with the users table and get the username
-        const [results] = await pool.query(`
-            SELECT apps.*, users.username AS created_by_username
+        // Basis SQL-query
+        let query = `
+            SELECT apps.*, 
+                   created_users.username AS created_by_username, 
+                   modified_users.username AS last_modified_by_username
             FROM windows_apps AS apps
-            JOIN users ON apps.created_by = users.id
-        `);
+            JOIN users AS created_users ON apps.created_by = created_users.id
+            LEFT JOIN users AS modified_users ON apps.last_modified_by = modified_users.id
+        `;
+
+        // Zoekterm toevoegen aan de query als die bestaat
+        if (search) {
+            query += ` WHERE apps.name LIKE ? OR apps.description LIKE ?`;
+        }
+
+        const values = search ? [`%${search}%`, `%${search}%`] : [];
+        const [results] = await pool.query(query, values);
+
         res.json(results);
     } catch (err) {
         console.error('Error querying database:', err);
@@ -41,7 +53,6 @@ router.get('/windows-apps', async (req, res) => {
     }
 });
 
-// The rest of the routes remain unchanged
 
 // POST route for creating an app
 router.post('/windows-apps', authenticateToken, async (req, res) => {

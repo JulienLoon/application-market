@@ -24,6 +24,7 @@ body {
       var(--background-color-light)
     )
     var(--background-color-light);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Voeg hier de overgang toe */
 }
 
 .dark body {
@@ -34,6 +35,7 @@ body {
       var(--background-color-dark)
     )
     var(--background-color-dark);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Voeg hier de overgang toe */
 }
 
 @layer utilities {
