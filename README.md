@@ -1,5 +1,7 @@
-# Application Market
+## Application Market
+![Application Market Logo](./assets/images/Long-LOGO_Application-Market_Dark-Mode.png)
 
+## Welkom!
 Welkom bij Application Market! Application Market is een platform voor het beheren en downloaden van applicaties. Deze repository bevat de frontend, API en database configuraties.
 
 ![Application Market](./assets/images/Application-Market.png)
@@ -81,8 +83,8 @@ Hier zijn enkele van de belangrijkste API endpoints:
 
 - `GET /api/users`: Haal alle gebruikers op
 - `POST /api/users`: Maak een nieuwe gebruiker aan
-- `GET /api/windows_apps`: Haal alle Windows applicaties op
-- `POST /api/windows_apps`: Maak een nieuwe Windows applicatie aan
+- `GET /api/apps/windows_apps`: Haal alle Windows applicaties op
+- `POST /api/apps/windows_apps`: Maak een nieuwe Windows applicatie aan
 
 ## Projectstructuur
 
@@ -114,3 +116,6 @@ Hier zijn enkele screenshots van de frontend en backend:
 ### Backend
 
 ![Backend Screenshot](./assets/images/Backend.png)
+
+##
+&copy; 2024 - Julian Loontjens 

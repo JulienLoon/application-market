@@ -6,15 +6,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Notification from '../components/Notification';
 import { getRegistrationStatus } from '../services/api';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null); // Voeg dit toe
   const [isMounted, setIsMounted] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
@@ -41,6 +43,13 @@ const LoginPage: React.FC = () => {
       };
 
       fetchRegistrationStatus();
+
+      // Controleer en verwijder een eventuele statusmelding
+      const message = localStorage.getItem('userStatusMessage');
+      if (message) {
+        setStatusMessage(message);
+        localStorage.removeItem('userStatusMessage'); // Verwijder de melding na het tonen
+      }
     }
   }, [router]);
 
@@ -88,7 +97,7 @@ const LoginPage: React.FC = () => {
         }
         setSuccessMessage(null);
     }
-};
+  };
 
   const handleBackToFrontend = () => {
     router.push('/');
@@ -96,6 +105,10 @@ const LoginPage: React.FC = () => {
 
   const handleRegister = () => {
     router.push('/register');
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   if (!isMounted) {
@@ -129,6 +142,13 @@ const LoginPage: React.FC = () => {
             onClose={() => setSuccessMessage(null)}
           />
         )}
+        {statusMessage && (
+          <Notification
+            message={statusMessage}
+            type="warning"
+            onClose={() => setStatusMessage(null)}
+          />
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="username">
@@ -146,13 +166,22 @@ const LoginPage: React.FC = () => {
             <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="password">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={passwordVisible ? 'text' : 'password'}
+                className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 dark:text-gray-300 focus:outline-none"
+              >
+                <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
+              </button>
+            </div>
           </div>
           <button
             type="submit"

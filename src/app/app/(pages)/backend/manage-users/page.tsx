@@ -3,8 +3,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Notification from '../../../components/Notification';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const ManageUsersPage: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -22,7 +25,14 @@ const ManageUsersPage: React.FC = () => {
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<number | null>(null);
+  const [secondConfirm, setSecondConfirm] = useState(false);
+  const currentUserId = Number(localStorage.getItem('user_id'));  // Stel het ID van de huidige gebruiker vast
+  const router = useRouter();
 
+  // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showEditPassword, setShowEditPassword] = useState<boolean>(false);
+  
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -76,126 +86,164 @@ const ManageUsersPage: React.FC = () => {
     const emailError = validateEmail(newUser.email_address);
 
     if (fieldError) {
-      setWarningMessage(fieldError);
-      return;
+        setWarningMessage(fieldError);
+        return;
     }
-  
+
     if (emailError) {
-      setWarningMessage(`Faulty email address entered: ${emailError}`);
-      return;
+        setWarningMessage(`Faulty email address entered: ${emailError}`);
+        return;
     }
-  
+
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token not found');
-      }
-  
-      await axios.post('http://localhost:3002/api/admin/users', newUser, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Token not found');
         }
-      });
-      fetchUsers();
-      setNewUser({
-        username: '',
-        password: '',
-        first_name: '',
-        last_name: '',
-        email_address: '',
-        isEnabled: true
-      });
-      setSuccessMessage('User successfully added!');
-      setError(null);
+
+        const response = await axios.post('http://localhost:3002/api/admin/users', newUser, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        setSuccessMessage('User successfully added!');
+        setError(null);
+        fetchUsers();
+        setNewUser({
+            username: '',
+            password: '',
+            first_name: '',
+            last_name: '',
+            email_address: '',
+            isEnabled: true
+        });
     } catch (err) {
-      setError('Error creating user');
-      setSuccessMessage(null);
-      console.error('Error creating user:', err);
+        if (axios.isAxiosError(err) && err.response) {
+            const response = err.response as { data: { field?: string, message?: string } };
+            if (response.data.field === 'username') {
+                setWarningMessage('Username already exists');
+            } else if (response.data.field === 'email_address') {
+                setWarningMessage('Email address already exists');
+            } else {
+                setError(response.data.message || 'Error creating user');
+            }
+        } else {
+            setError('Error creating user');
+        }
+        setSuccessMessage(null);
+        console.error('Error creating user:', err);
     }
-  };  
-  
-  const updateUser = async () => {
+};  
+
+const updateUser = async () => {
     const emailError = validateEmail(editUser.email_address);
-    const fieldError = validateUserFields(editUser, true); // Pass true for edit mode
-  
+    const fieldError = validateUserFields(editUser, true);
+
     if (emailError) {
-      setWarningMessage(`Faulty email address entered: ${emailError}`);
-      return;
+        setWarningMessage(`Faulty email address entered: ${emailError}`);
+        return;
     }
-  
+
     if (fieldError) {
-      setWarningMessage(fieldError);
-      return;
+        setWarningMessage(fieldError);
+        return;
     }
-  
+
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token not found');
-      }
-  
-      if (!editUser || !editUser.id) {
-        throw new Error('No user selected for editing');
-      }
-  
-      // Prepare the payload for updating the user
-      const userToUpdate = { ...editUser, isEnabled: editUser.isEnabled ? 1 : 0 };
-  
-      // Remove the password if it's empty
-      if (!userToUpdate.password) {
-        delete userToUpdate.password;
-      }
-  
-      await axios.put(`http://localhost:3002/api/admin/users/${editUser.id}`, userToUpdate, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Token not found');
         }
-      });
-  
-      fetchUsers();
-      setEditUser(null);
-      setSuccessMessage('User successfully updated!');
-      setError(null);
+
+        if (!editUser || !editUser.id) {
+            throw new Error('No user selected for editing');
+        }
+
+        const userToUpdate = { ...editUser, isEnabled: editUser.isEnabled ? 1 : 0 };
+        if (!userToUpdate.password) {
+            delete userToUpdate.password;
+        }
+
+        const response = await axios.put(`http://localhost:3002/api/admin/users/${editUser.id}`, userToUpdate, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        setSuccessMessage('User successfully updated!');
+        setError(null);
+        fetchUsers();
+        setEditUser(null);
     } catch (err) {
-      setError('Error updating user');
-      setSuccessMessage(null);
-      console.error('Error updating user:', err);
+        if (axios.isAxiosError(err) && err.response) {
+            const response = err.response as { data: { field?: string, message?: string } };
+            if (response.data.field === 'username') {
+                setWarningMessage('Username already exists');
+            } else if (response.data.field === 'email_address') {
+                setWarningMessage('Email address already exists');
+            } else {
+                setError(response.data.message || 'Error updating user');
+            }
+        } else {
+            setError('Error updating user');
+        }
+        setSuccessMessage(null);
+        console.error('Error updating user:', err);
     }
-  };  
+};
   
   const deleteUser = async (userId: number) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token not found');
-      }
-
-      await axios.delete(`http://localhost:3002/api/admin/users/${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Token not found');
         }
-      });
-      fetchUsers();
-      setSuccessMessage('User successfully deleted!');
-      setError(null);
-      setConfirmDeleteUserId(null);
-      if (expandedUserId === userId) {
-        setExpandedUserId(null);
-      }
+
+        await axios.delete(`http://localhost:3002/api/admin/users/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        fetchUsers();
+        setSuccessMessage('User successfully deleted!');
+        setError(null);
+        setConfirmDeleteUserId(null);
+        if (expandedUserId === userId) {
+            setExpandedUserId(null);
+        }
     } catch (err) {
-      setError('Error deleting user');
-      setSuccessMessage(null);
-      console.error('Error deleting user:', err);
+        setError('Error deleting user');
+        setSuccessMessage(null);
+        console.error('Error deleting user:', err);
     }
-  };
+};
 
-  const handleConfirmDelete = (userId: number) => {
+const handleConfirmDelete = (userId: number) => {
     setConfirmDeleteUserId(userId);
-  };
+};
 
-  const handleCancelDelete = () => {
+const handleSecondConfirmDelete = () => {
+    setSecondConfirm(true);
+};
+
+const handleFinalDelete = () => {
+  deleteUser(confirmDeleteUserId!);  // Voer de verwijderactie definitief uit
+  setSecondConfirm(false);
+  setConfirmDeleteUserId(null);
+  if (confirmDeleteUserId === currentUserId) {
+    localStorage.removeItem('token');
+    setWarningMessage('You have been logged out. Redirecting to login...');
+    setTimeout(() => {
+        router.push('/login');
+    }, 2000);
+}
+};
+
+const handleCancelDelete = () => {
     setConfirmDeleteUserId(null);
-  };
+    setSecondConfirm(false);
+};
 
   const toggleDetails = (userId: number) => {
     if (expandedUserId === userId) {
@@ -258,18 +306,30 @@ const ManageUsersPage: React.FC = () => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
             />
           </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+          <div className="mb-4 relative">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
+            >
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={newUser.password}
-              onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm leading-5"
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
           </div>
           <div className="mb-4">
             <label htmlFor="first_name" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -400,26 +460,54 @@ const ManageUsersPage: React.FC = () => {
             ))}
           </tbody>
         </table>
-        {confirmDeleteUserId !== null && (
+        {confirmDeleteUserId !== null && !secondConfirm && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-              <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Confirm Deletion</h2>
-              <p className="mb-4 text-gray-700 dark:text-gray-300">Are you sure you want to delete this user?</p>
-              <div className="flex justify-end">
-                <button
-                  className="px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  onClick={() => deleteUser(confirmDeleteUserId)}
-                >
-                  Delete
-                </button>
-                <button
-                  className="ml-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                  onClick={handleCancelDelete}
-                >
-                  Cancel
-                </button>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                  <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Confirm Deletion</h2>
+                  <p className="mb-4 text-gray-700 dark:text-gray-300">Are you sure you want to delete this user?</p>
+                  <div className="flex justify-end">
+                      <button
+                          className="px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          onClick={() => {
+                              if (confirmDeleteUserId === currentUserId) {
+                                  handleSecondConfirmDelete();  // Eerste bevestiging voor eigen account
+                              } else {
+                                  handleFinalDelete();  // Directe verwijdering voor andere gebruikers
+                              }
+                          }}
+                      >
+                          {confirmDeleteUserId === currentUserId ? 'Confirm' : 'Delete'}
+                      </button>
+                      <button
+                          className="ml-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                          onClick={handleCancelDelete}
+                      >
+                          Cancel
+                      </button>
+                  </div>
               </div>
-            </div>
+          </div>
+        )}
+        {secondConfirm && confirmDeleteUserId === currentUserId && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                  <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Final Confirmation</h2>
+                  <p className="mb-4 text-gray-700 dark:text-gray-300">This action is irreversible. Are you sure you want to delete your own account?</p>
+                  <div className="flex justify-end">
+                      <button
+                          className="px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          onClick={handleFinalDelete}  // Tweede bevestiging en definitieve verwijdering
+                      >
+                          Delete
+                      </button>
+                      <button
+                          className="ml-4 px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                          onClick={handleCancelDelete}
+                      >
+                          Cancel
+                      </button>
+                  </div>
+              </div>
           </div>
         )}
         {editUser && (
@@ -439,18 +527,34 @@ const ManageUsersPage: React.FC = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="editPassword" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div className="mb-4 relative">
+                <label
+                  htmlFor="editPassword"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
+                >
                   Password
                 </label>
-                <input
-                  type="password"
-                  id="editPassword"
-                  name="password"
-                  value={editUser.password}
-                  onChange={handleEditChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="editPassword"
+                    name="password"
+                    value={editUser.password}
+                    onChange={handleEditChange}
+                    placeholder="Leave blank to keep current password"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm leading-5"
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Leave blank to keep current password.
+                </p>
               </div>
               <div className="mb-4">
                 <label htmlFor="editFirstName" className="block text-sm font-medium text-gray-900 dark:text-gray-100">

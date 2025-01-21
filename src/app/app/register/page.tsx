@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Notification from '../components/Notification';
 import { getRegistrationStatus } from '../services/api';
 
@@ -17,6 +17,8 @@ const RegisterPage: React.FC = () => {
   const [email_address, setEmail] = useState('');
   const [first_name, setFirstName] = useState('');
   const [last_name, setLastName] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
@@ -64,54 +66,67 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
 
     if (!validateEmail(email_address)) {
-      setWarningMessage('Invalid email format');
-      setSuccessMessage(null);
-      setError(null);
-      return;
+        setWarningMessage('Invalid email format');
+        setSuccessMessage(null);
+        setError(null);
+        return;
     }
 
     if (password !== confirmPassword) {
-      setWarningMessage('Passwords do not match');
-      setSuccessMessage(null);
-      setError(null);
-      return;
+        setWarningMessage('Passwords do not match');
+        setSuccessMessage(null);
+        setError(null);
+        return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3002/api/auth/register', {
-        username,
-        password,
-        email_address,
-        first_name,
-        last_name,
-        isEnabled: true,
-      });
+        const response = await axios.post('http://localhost:3002/api/auth/register', {
+            username,
+            password,
+            email_address,
+            first_name,
+            last_name,
+            isEnabled: true,
+        });
 
-      if (response.status === 201) {
-        setSuccessMessage('Registration successful! Redirecting to login...');
-        setError(null);
-        setWarningMessage(null);
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
-      }
+        if (response.status === 201) {
+            setSuccessMessage('Registration successful! Redirecting to login...');
+            setError(null);
+            setWarningMessage(null);
+            setTimeout(() => {
+                router.push('/login');
+            }, 2000);
+        }
     } catch (err: any) {
-      const errorMessage = err.response?.data;
-      if (err.response?.status === 400 && errorMessage === 'Username or Email already exists') {
-        setWarningMessage('Username or Email already exists');
-      } else if (typeof errorMessage === 'string') {
-        setError(errorMessage);
-      } else if (typeof errorMessage === 'object') {
-        setError(errorMessage.message || 'Registration failed: unknown error');
-      } else {
-        setError('Registration failed: API not available.');
-      }
-      setSuccessMessage(null);
+        const errorMessage = err.response?.data;
+
+        if (err.response?.status === 400 && errorMessage.field && errorMessage.message) {
+            if (errorMessage.field === 'username') {
+                setWarningMessage(errorMessage.message);
+            } else if (errorMessage.field === 'email_address') {
+                setWarningMessage(errorMessage.message);
+            }
+        } else if (typeof errorMessage === 'string') {
+            setError(errorMessage);
+        } else if (typeof errorMessage === 'object') {
+            setError(errorMessage.message || 'Registration failed: unknown error');
+        } else {
+            setError('Registration failed: API not available.');
+        }
+        setSuccessMessage(null);
     }
-  };
+};
 
   const handleBackToLogin = () => {
     router.push('/login');
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!confirmPasswordVisible);
   };
 
   if (!isMounted) {
@@ -209,25 +224,43 @@ const RegisterPage: React.FC = () => {
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="password">
                   Password
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={passwordVisible ? 'text' : 'password'}
+                    className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 dark:text-gray-300 focus:outline-none"
+                  >
+                    <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="confirmPassword">
                   Confirm Password
                 </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={confirmPasswordVisible ? 'text' : 'password'}
+                    className="w-full px-3 py-2 border rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleConfirmPasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 dark:text-gray-300 focus:outline-none"
+                  >
+                    <FontAwesomeIcon icon={confirmPasswordVisible ? faEyeSlash : faEye} />
+                  </button>
+                </div>
               </div>
               <button
                 type="submit"

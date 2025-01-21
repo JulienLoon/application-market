@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Metadata zoals title en description worden door Next.js gegenereerd */}
         <link rel="icon" href="./images/favicon.ico" />
       </head>
       <body className={inter.className}>

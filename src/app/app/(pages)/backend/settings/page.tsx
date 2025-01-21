@@ -8,15 +8,27 @@ import Notification from '../../../components/Notification';
 
 const SettingsPage: React.FC = () => {
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
-  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [newRegistrationEnabled, setNewRegistrationEnabled] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Retrieve token from local storage or context
+  const token = localStorage.getItem('token'); // Adjust as necessary
 
   useEffect(() => {
     const fetchSettings = async () => {
+      if (!token) {
+        setNotification({ message: 'No token found, please log in.', type: 'error' });
+        return;
+      }
+
       try {
-        const response = await axios.get('http://localhost:3002/api/settings/registration');
+        const response = await axios.get('http://localhost:3002/api/settings/registration', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         setRegistrationEnabled(response.data.registration_enabled);
-        setNewRegistrationEnabled(response.data.registration_enabled); // Initialize new state
+        setNewRegistrationEnabled(response.data.registration_enabled);
       } catch (error) {
         console.error('Error fetching settings:', error);
         setNotification({ message: 'Failed to load settings', type: 'error' });
@@ -24,16 +36,25 @@ const SettingsPage: React.FC = () => {
     };
 
     fetchSettings();
-  }, []);
+  }, [token]);
 
   const handleCheckboxChange = () => {
     setNewRegistrationEnabled(!newRegistrationEnabled);
   };
 
   const handleSaveSettings = async () => {
+    if (!token) {
+      setNotification({ message: 'No token found, please log in.', type: 'error' });
+      return;
+    }
+
     try {
       await axios.put('http://localhost:3002/api/settings/registration', {
-        registration_enabled: newRegistrationEnabled
+        registration_enabled: newRegistrationEnabled,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
       setRegistrationEnabled(newRegistrationEnabled);
       setNotification({ message: 'Registration setting updated', type: 'success' });

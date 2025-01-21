@@ -3,8 +3,9 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
+const authenticateToken = require('../middleware/auth');
 
-// Endpoint to get the current registration status
+// Endpoint om de huidige registratie status op te halen
 router.get('/registration', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT setting_value FROM settings WHERE setting_key = "registration_enabled"');
@@ -16,8 +17,8 @@ router.get('/registration', async (req, res) => {
     }
 });
 
-// Endpoint to update the registration status
-router.put('/registration', async (req, res) => {
+// Endpoint om de registratie status bij te werken
+router.put('/registration', authenticateToken, async (req, res) => {
     const { registration_enabled } = req.body;
     try {
         await pool.query('UPDATE settings SET setting_value = ? WHERE setting_key = "registration_enabled"', [registration_enabled]);
