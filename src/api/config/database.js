@@ -35,8 +35,8 @@ async function createTables() {
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             description TEXT,
-            download_url VARCHAR(255) DEFAULT NULL,
-            image_url VARCHAR(255) DEFAULT NULL,
+            download_url TEXT DEFAULT NULL,
+            image_url TEXT DEFAULT NULL,
             created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             created_by INT DEFAULT NULL,
             updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -119,4 +119,3 @@ async function createTables() {
 }
 
 module.exports = { pool, createTables };
-

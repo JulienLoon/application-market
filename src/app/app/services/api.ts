@@ -170,3 +170,14 @@ export const getAppsCount = async () => {
         throw new Error('Failed to fetch apps count');
     }
 };
+
+// Enabled Users Count API function
+export const getEnabledUsersCount = async (): Promise<number> => {
+    try {
+        const response = await axios.get<{ count: number }>(`${API_BASE_URL}/api/users/count/enabled`, getAuthHeaders());
+        return response.data.count;
+    } catch (error) {
+        console.error('Error fetching enabled users count:', error);
+        throw new Error('Failed to fetch enabled users count');
+    }
+};

@@ -34,17 +34,25 @@ router.post('/register', async (req, res) => {
     }
 
     try {
+        // Check if username already exists
+        const [userByUsername] = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
+        if (userByUsername.length > 0) {
+            return res.status(400).json({ field: 'username', message: 'Username already exists' });
+        }
+
+        // Check if email already exists
+        const [userByEmail] = await pool.query('SELECT id FROM users WHERE email_address = ?', [email_address]);
+        if (userByEmail.length > 0) {
+            return res.status(400).json({ field: 'email_address', message: 'Email address already exists' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const [result] = await pool.query('INSERT INTO users (username, password, email_address, first_name, last_name, isEnabled) VALUES (?, ?, ?, ?, ?, ?)', [username, hashedPassword, email_address, first_name, last_name, isEnabled]);
         res.status(201).send('User registered successfully');
     } catch (error) {
         console.error('Error inserting user into database:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).send('Username or email already exists');
-        } else {
-            return res.status(500).send('Error inserting user into database');
-        }
+        res.status(500).send('Error inserting user into database');
     }
 });
 
