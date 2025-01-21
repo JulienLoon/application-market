@@ -4,7 +4,7 @@
 ## Welkom!
 Welkom bij Application Market! Application Market is een platform voor het beheren en downloaden van applicaties. Deze repository bevat de frontend, API en database configuraties.
 
-![Application Market](./assets/images/Application-Market.png)
+![Application Market](./assets/images/Application-Market_v.0.10.4.png)
 
 ## Inhoud
 
@@ -111,11 +111,11 @@ Hier zijn enkele screenshots van de frontend en backend:
 
 ### Frontend
 
-![Frontend Screenshot](./assets/images/Frontend.png)
+![Frontend Screenshot](./assets/images/Frontend_v.0.10.4.png)
 
 ### Backend
 
-![Backend Screenshot](./assets/images/Backend.png)
+![Backend Screenshot](./assets/images/Backend_v.0.10.4.png)
 
 ##
 &copy; 2024 - Julian Loontjens 
