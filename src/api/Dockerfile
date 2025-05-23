@@ -1,5 +1,5 @@
 # Use Node.js base image
-FROM node:14
+FROM node:24.0.2
 
 # Install netcat
 RUN apt-get update && apt-get install -y netcat
